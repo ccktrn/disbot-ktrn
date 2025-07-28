@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  discord-bot:
+    container_name: discord-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    network: host
+    command: npm run start

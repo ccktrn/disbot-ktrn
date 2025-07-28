@@ -1,0 +1,23 @@
+{
+  "name": "mc-discord-srv",
+  "version": "1.0.0",
+  "description": "A Discord bot for managing Minecraft server commands",
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc -p .",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "@discordjs/builders": "^1.11.2",
+    "@discordjs/rest": "^2.5.1",
+    "discord-api-types": "^0.38.16",
+    "discord.js": "^14.21.0",
+    "dotenv": "^17.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.31.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.37.0"
+  }
+}
