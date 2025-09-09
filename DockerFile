@@ -1,8 +1,0 @@
-FROM jarredsumner/bun:edge
-
-WORKDIR /app
-COPY package.json ./
-RUN bun install --production
-COPY . .
-RUN bun run setup
-CMD ["bun", "run", "start"]

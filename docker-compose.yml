@@ -7,5 +7,5 @@ services:
       dockerfile: Dockerfile
     volumes:
       - .:/app
-    network: host
-    command: npm run start
+    # network: host
+    command: bun run start
