@@ -1,5 +1,5 @@
 FROM oven/bun:latest
-
+RUN apt update && apt install -y curl tar
 WORKDIR /app
 COPY ./package.json ./
 COPY ./bun.lock ./
