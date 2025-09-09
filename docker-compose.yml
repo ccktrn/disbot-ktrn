@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - .:/app
+    tty: true
     restart: unless-stopped
     command: bun run start
     network_mode: host
