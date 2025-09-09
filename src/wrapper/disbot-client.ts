@@ -4,8 +4,6 @@ import { SlashCmd } from '../type';
 
 import * as dotenv from "dotenv";
 
-dotenv.config();
-
 type DiscordMessageCategory = 'log' | 'info' | 'warning' | 'success' | 'error';
 
 // Wrapper class for Discord client

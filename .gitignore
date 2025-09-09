@@ -3,3 +3,5 @@ config.json
 build/
 .env
 .env.local
+bin/
+outputs/

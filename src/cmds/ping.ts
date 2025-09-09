@@ -8,14 +8,12 @@ const builder = new SlashCommandBuilder()
 
 const execute = async (interaction: Interaction<CacheType>) => {
   if (!interaction.isChatInputCommand()) return;
+
   interaction.reply({
     content: `Pong! Latency is ${Date.now() - interaction.createdTimestamp}ms.`,
     flags: [ MessageFlags.Ephemeral ], // This makes the reply visible only to the user who invoked the command
   });
 };
-
-
-
 
 
 const pingCmd: SlashCmd = {

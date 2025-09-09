@@ -1,20 +1,8 @@
-# builder stage
-FROM node:22-slim as builder
+FROM jarredsumner/bun:edge
 
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
+COPY package.json ./
+RUN bun install --production
 COPY . .
-
-RUN npm run build
-
-# runner stage
-
-FROM node:22-slim
-
-WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
-COPY --from=builder /app/build ./build
-
-CMD ["npm", "run", "start"]
+RUN bun run setup
+CMD ["bun", "run", "start"]
