@@ -6,4 +6,5 @@ COPY ./bun.lock ./
 RUN bun install
 COPY . .
 RUN bun run setup
-CMD ["bun", "run", "start"]
+CMD ["sh"]
+# CMD ["bun", "run", "start"]
