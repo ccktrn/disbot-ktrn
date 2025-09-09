@@ -19,6 +19,7 @@ interface Options {
 export function ytdlpCmdBuilder(url: string, options: Options): string[] {
   const cmd = [ytdlpPath, url];
   // cmd.push("--quiet");
+  cmd.push("--force-overwrites")
   cmd.push("--ffmpeg-location", ffmpegPath);
   if (options.format) {
     cmd.push(...getFormatOption(options.format));
