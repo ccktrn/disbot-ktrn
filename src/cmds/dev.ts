@@ -3,7 +3,7 @@ import { SlashCmd } from '../type';
 
 const builder = new SlashCommandBuilder()
   .setName('dev')
-  .setDescription('dev commands for testing purposes');
+  .setDescription('dev: random error by 20% or success by 80% after 5 seconds wait');
 
 const execute = async (interaction: Interaction<CacheType>) => {
   if (!interaction.isChatInputCommand()) return;
@@ -11,21 +11,20 @@ const execute = async (interaction: Interaction<CacheType>) => {
     await interaction.deferReply({
       flags: [ MessageFlags.Ephemeral ],
     });
-    const proc = Bun.spawn({
-      cmd: ['sleep', `1`],
-      stdout: 'inherit',
-      stderr: 'inherit',
+
+    await new Promise<void>((resolve, reject) => {
+      const random = Math.random();
+      setTimeout(() => {
+        if (random < 0.8) {
+          resolve();
+        } else {
+          reject();
+        }
+      }, 5000)
     });
-    const status = await proc.exited;
-    if (status !== 0) {
-      await interaction.editReply({
-        content: `error: ${status}`,
-      });
-    } else {
-      await interaction.editReply({
-        content: `thank you for waiting!`,
-      });
-    }
+    await interaction.editReply({
+      content: `thank you for waiting!`,
+    });
   } catch (error) {
     console.error(`Error executing command ${interaction.commandName}:`, error);
   } finally {
