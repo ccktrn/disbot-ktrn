@@ -15,6 +15,9 @@ interface Options {
   outputPath: string; // with ext
   embedThumbnail: boolean;
 }
+export function updateYtdlpCmdBuilder(): string[] {
+  return [ytdlpPath, '-U'];
+}
 
 export function ytdlpCmdBuilder(url: string, options: Options): string[] {
   const cmd = [ytdlpPath, url];
