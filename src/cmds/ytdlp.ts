@@ -92,7 +92,7 @@ const execute = async (interaction: Interaction<CacheType>) => {
     const cmd = ytdlpCmdBuilder( url, { 
       format: format as Format, 
       outputPath: outputPath,
-      embedThumbnail: false 
+      embedThumbnail: true 
     });
     console.log(`[/ytdlp] executing yt-dlp with command: ${cmd.join(' ')}`);
     const proc = Bun.spawn({
