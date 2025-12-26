@@ -10,16 +10,18 @@
   "dependencies": {
     "@discordjs/builders": "^1.11.2",
     "@discordjs/rest": "^2.5.1",
+    "axios": "^1.13.2",
     "discord-api-types": "^0.38.16",
     "discord.js": "^14.21.0",
-    "dotenv": "^17.2.0"
+    "dotenv": "^17.2.0",
+    "form-data": "^4.0.5"
   },
   "devDependencies": {
+    "@types/bun": "latest",
     "eslint": "^9.31.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.37.0",
-    "@types/bun": "latest"
+    "typescript-eslint": "^8.37.0"
   },
   "module": "src/index.ts",
   "type": "module",

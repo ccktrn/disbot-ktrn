@@ -3,6 +3,11 @@ import { SlashCmd } from '../type';
 import { Format, supportedFormats, updateYtdlpCmdBuilder, ytdlpCmdBuilder } from '../lib/ytdlp-cmd-builder';
 import { fetchTitleYT } from '../lib/fetchTitleYT';
 
+const ONLINE_UPLOAD_URL = "https://litterbox.catbox.moe/resources/internals/api.php";
+const ONLINE_UPLOAD_RETENTION = '24h'; // '1h', '24h', '72h', to set retention time
+const DIRECT_UPLOAD_LIMIT = 8 * 1024 * 1024; // 8MB limit for direct upload
+
+
 const outputDir = 'outputs';
 
 const builder = new SlashCommandBuilder()
@@ -112,20 +117,46 @@ const execute = async (interaction: Interaction<CacheType>) => {
 
     // get file
     const file = Bun.file(outputPath);
-    const data = await file.bytes()
-    const buffer = Buffer.from(data);
-    // create attachment
+    console.log(`[/ytdlp] downloaded file size: ${(file.size / 1024).toFixed(2)} KB`);
+    if (file.size < DIRECT_UPLOAD_LIMIT) {
+      // create attachment
+      const newAttachment = new AttachmentBuilder(
+        outputPath, { name: `${title}.${format}` }
+      );
 
-    
-    const newAttachment = new AttachmentBuilder(
-      buffer, { name: `${title}.${format}` }
-    );
+      await interaction.editReply({
+        content: `Download completed successfully!\n Here is your file:`,
+        files: [newAttachment],
+      });
+      console.log(`[/ytdlp] => sent file: ${title}.${format}`);
 
-    await interaction.editReply({
-      content: `Download completed successfully!\n Here is your file:`,
-      files: [newAttachment],
-    });
-    console.log(`[/ytdlp] => sent file: ${title}.${format}`);
+    } else {
+      // file too large, upload to catbox.moe
+      const formData = new FormData();
+        formData.append('reqtype', 'fileupload');
+        formData.append('time', ONLINE_UPLOAD_RETENTION); 
+        formData.append('fileToUpload', file);
+        try {
+          const response = await fetch(ONLINE_UPLOAD_URL, {
+              method: "POST",
+              body: formData,
+          });
+          const resUrl = await response.text();
+          if (!resUrl.startsWith('http')) {
+            throw new Error(`catbox.moe upload failed: ${resUrl}`);
+          }
+          await interaction.editReply({
+            content: `File is too large to send directly. Please download from this url (retension: ${ONLINE_UPLOAD_RETENTION}):\n${resUrl}`,
+          });
+          console.log(`[/ytdlp] => uploaded to catbox.moe: ${resUrl}`);
+        } catch (error) {
+          console.error('Error uploading to catbox.moe:', error);
+          await interaction.editReply({
+            content: `Failed to upload the file to catbox.moe: ${error}`,
+          });
+          return;
+        }
+    }
 
   } catch (error) {
     console.error('Error in ytdlp command:', error);
