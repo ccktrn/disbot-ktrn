@@ -1,0 +1,30 @@
+# 依存関係 (コンテナ内で `bun install` するので不要)
+node_modules
+# 一時ファイル・成果物
+outputs
+dist
+
+# バイナリフォルダ
+# (手元のMac/Windows用バイナリをコピーしてもLinuxでは動かないため除外。
+#  Dockerビルド中に setup.sh がLinux用を新規ダウンロードします)
+bin
+
+# 機密情報 (イメージ内に焼き付けないようにする)
+.env
+
+# Git管理ファイル
+.git
+.gitignore
+
+# Docker関連 (コンテナの中には不要)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# IDE・OSのゴミ
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+npm-debug.log
+yarn-error.log

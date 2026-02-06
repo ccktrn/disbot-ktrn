@@ -1,13 +1,13 @@
-version: '3.8'
 services:
   discord-bot:
     container_name: discord-bot
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - .:/app
-    tty: true
+    env_file:
+      - .env
     restart: unless-stopped
-    command: bun run start
-    network_mode: host
+    
+    # ダウンロード中の一時ファイルを確認したい場合のみ、以下のコメント(#)を外してください
+    volumes:
+      - ./outputs:/app/outputs
