@@ -1,9 +1,10 @@
 FROM oven/bun:latest
 
-# 1. setup.sh の実行に必要なツール + python3 をインストール
+# 1. setup.sh の実行に必要なツール + python3 + nodejs をインストール ( ytdlp の動作安定化のため)
 RUN apt-get update && \
     apt-get install -y \
     python3 \
+    nodejs \
     curl \
     tar \
     xz-utils \
