@@ -9,5 +9,5 @@ services:
     restart: unless-stopped
     
     # ダウンロード中の一時ファイルを確認したい場合のみ、以下のコメント(#)を外してください
-    volumes:
-      - ./outputs:/app/outputs
+    # volumes:
+    #   - ./outputs:/app/outputs
