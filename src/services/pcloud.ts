@@ -56,7 +56,7 @@ export class PCloudService {
      * 📤 アップロード (Bun Native版)
      * fs.createReadStream の代わりに Bun.file を使用して安定化
      */
-    public async uploadFile(localPath: string, targetFolderId: number = 0): Promise<PCloudFileMetadata | null> {
+    public async uploadFile(localPath: string, targetFolderId: string = '0'): Promise<PCloudFileMetadata | null> {
         try {
             const token = await this.login();
             const fileName = path.basename(localPath);
@@ -73,7 +73,7 @@ export class PCloudService {
             // 標準のFormDataを使用 (Bunはこれをネイティブサポート)
             const form = new FormData();
             form.append('auth', token);
-            form.append('folderid', targetFolderId.toString());
+            form.append('folderid', targetFolderId);
             form.append('filename', fileName);
             form.append('file', bunFile); // BunFileを直接渡せる
 
@@ -103,12 +103,12 @@ export class PCloudService {
     /**
      * 📂 フォルダ内のファイル一覧を取得 (Bun fetch版)
      */
-    public async listFolder(folderId: number = 0): Promise<PCloudFileMetadata[]> {
+    public async listFolder(folderId: string = '0'): Promise<PCloudFileMetadata[]> {
         try {
             const token = await this.login();
             const params = new URLSearchParams({
                 auth: token,
-                folderid: folderId.toString()
+                folderid: folderId
             });
 
             const response = await fetch(`${this.apiBase}/listfolder?${params}`);
@@ -127,17 +127,17 @@ export class PCloudService {
     /**
      * 🔍 ファイルが存在するか確認
      */
-    public async isFileExists(fileName: string, folderId: number = 0): Promise<boolean> {
+    public async isFileExists(fileName: string, folderId: string = '0'): Promise<boolean> {
         const files = await this.listFolder(folderId);
         return files.some(f => f.name === fileName && !f.isfolder);
     }
 
-    public getUploadDirID(format: string): number {
-      let folderId = parseInt(process.env.PCLOUD_FOLDER_ID || '0', 10);
+    public getUploadDirID(format: string): string {
+      let folderId = process.env.PCLOUD_FOLDER_ID || '0';
       if (/^(mp3|flac|wav|m4a)$/i.test(format)) {
-          folderId = parseInt(process.env.PCLOUD_FOLDER_ID_MUSIC || folderId.toString(), 10);
+          folderId = process.env.PCLOUD_FOLDER_ID_MUSIC || folderId;
       } else if (/^(mp4|mkv|avi|mov)$/i.test(format)) {
-          folderId = parseInt(process.env.PCLOUD_FOLDER_ID_VIDEO || folderId.toString(), 10);
+          folderId = process.env.PCLOUD_FOLDER_ID_VIDEO || folderId;
       }
       return folderId;
     }

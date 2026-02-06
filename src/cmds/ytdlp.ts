@@ -102,7 +102,7 @@ const execute = async (interaction: Interaction<CacheType>) => {
     await interaction.editReply({ content: `📥 Downloaded (${fileSizeMB.toFixed(2)}MB). Uploading to pCloud...` });
 
     // --- 4. Upload to pCloud ---
-    const uploadDirID = PCloudService.getUploadDirID(format);
+    const uploadDirID = pCloud.getUploadDirID(format);
     const result = await pCloud.uploadFile(finalPath, uploadDirID);
 
     if (result) {
