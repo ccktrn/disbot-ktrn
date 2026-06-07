@@ -1,11 +1,12 @@
 {
-  "name": "mc-discord-srv",
+  "name": "disbot-ktrn",
   "version": "1.0.0",
   "description": "A Discord bot for managing Minecraft server commands",
   "scripts": {
     "dev": "bun --hot src/index.ts",
     "setup": "sh scripts/setup.sh",
-    "start": "bun src/index.ts"
+    "start": "bun src/index.ts",
+    "get-token": "bun scripts/get-pcloud-token.ts"
   },
   "dependencies": {
     "@discordjs/builders": "^1.11.2",
@@ -14,7 +15,8 @@
     "discord-api-types": "^0.38.16",
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.0",
-    "form-data": "^4.0.5"
+    "form-data": "^4.0.5",
+    "pcloud-sdk-js": "^2.0.0"
   },
   "devDependencies": {
     "@types/bun": "latest",

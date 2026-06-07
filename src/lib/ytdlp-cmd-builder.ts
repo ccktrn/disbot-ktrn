@@ -19,8 +19,13 @@ export function updateYtdlpCmdBuilder(): string[] {
   return [ytdlpPath, '-U'];
 }
 
+export function getSupportedFormatsCmdBuilder(url: string): string[] {
+  return [ytdlpPath, url, '--list-formats'];
+}
+
 export function ytdlpCmdBuilder(url: string, options: Options): string[] {
   const cmd = [ytdlpPath, url];
+  cmd.push("--js-runtimes", "bun");
   cmd.push("--quiet");
   cmd.push("--force-overwrites")
   cmd.push("--ffmpeg-location", ffmpegPath);

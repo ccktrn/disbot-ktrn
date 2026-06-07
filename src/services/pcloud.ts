@@ -12,44 +12,23 @@ interface PCloudFileMetadata {
 }
 
 export class PCloudService {
-    private authKey: string | null = null;
-    private readonly email: string;
-    private readonly password: string;
+    private readonly authToken: string;
     private readonly apiBase: string;
 
     constructor() {
-        this.email = process.env.PCLOUD_EMAIL || '';
-        this.password = process.env.PCLOUD_PASSWORD || '';
-        // エラーログが eapi (EU) だったのでデフォルトを eapi にしておくと安全です
-        this.apiBase = process.env.PCLOUD_API_BASE || 'https://eapi.pcloud.com'; 
+        this.authToken = process.env.PCLOUD_API_TOKEN || '';
+        this.apiBase = process.env.PCLOUD_API_BASE || 'https://api.pcloud.com'; 
     }
 
     /**
-     * ログイン処理 (Bun fetch版)
+     * 認証トークンを取得
      */
-    private async login(): Promise<string> {
-        if (this.authKey) return this.authKey;
-
-        try {
-            const params = new URLSearchParams({
-                getauth: '1',
-                logout: '1',
-                username: this.email,
-                password: this.password
-            });
-
-            const res = await fetch(`${this.apiBase}/userinfo?${params}`);
-            const data = await res.json() as any;
-
-            if (data.result === 0) {
-                this.authKey = data.auth;
-                return this.authKey!;
-            }
-            throw new Error(`Login Failed: ${data.error}`);
-        } catch (error) {
-            console.error('PCloud Login Error:', error);
-            throw error;
+    private getAuthToken(): string {
+        if (!this.authToken) {
+            throw new Error('PCloud auth token is not configured. Set PCLOUD_API_TOKEN.');
         }
+
+        return this.authToken;
     }
 
     /**
@@ -58,7 +37,7 @@ export class PCloudService {
      */
     public async uploadFile(localPath: string, targetFolderId: string = '0'): Promise<PCloudFileMetadata | null> {
         try {
-            const token = await this.login();
+            const token = this.getAuthToken();
             const fileName = path.basename(localPath);
             
             // Bunのファイルオブジェクトを作成
@@ -72,8 +51,9 @@ export class PCloudService {
 
             // 標準のFormDataを使用 (Bunはこれをネイティブサポート)
             const form = new FormData();
-            form.append('auth', token);
+            form.append('access_token', token);
             form.append('folderid', targetFolderId);
+            form.append('nopartial', '1');
             form.append('filename', fileName);
             form.append('file', bunFile); // BunFileを直接渡せる
 
@@ -105,9 +85,9 @@ export class PCloudService {
      */
     public async listFolder(folderId: string = '0'): Promise<PCloudFileMetadata[]> {
         try {
-            const token = await this.login();
+            const token = this.getAuthToken();
             const params = new URLSearchParams({
-                auth: token,
+                access_token: token,
                 folderid: folderId
             });
 
