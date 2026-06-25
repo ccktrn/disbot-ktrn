@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, Interaction, CacheType, MessageFlags, AttachmentBuilder } from 'discord.js'
 import { SlashCmd } from '../type';
-import { Format, getSupportedFormatsCmdBuilder, supportedFormats, updateYtdlpCmdBuilder, ytdlpCmdBuilder } from '../lib/ytdlp-cmd-builder';
-import { fetchTitle } from '../lib/fetchTitle';
+import { Format, getSupportedFormatsCmdBuilder, supportedFormats, updateYtdlpCmdBuilder, ytdlpCmdBuilder } from '../lib/ytdlp/ytdlp-cmd-builder';
+import { fetchTitle } from '../lib/ytdlp/fetchTitle';
 import { PCloudService } from '../services/pcloud';
 import fs from 'fs';
 import path from 'path';
@@ -17,16 +17,23 @@ const DISCORD_MSG_LIMIT = 2000;
 
 const builder = new SlashCommandBuilder()
   .setName('ytdlp')
-  .addStringOption(option => 
-    option.setName('url').setDescription('The URL of the video').setRequired(true)
+  .setDescription('Download video from ANY site supported by yt-dlp or update the tool')
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName('download')
+      .setDescription('Download a video')
+      .addStringOption(option => 
+        option.setName('url').setDescription('The URL of the video').setRequired(true)
+      )
+      .addStringOption(option => 
+        option.setName('format').setDescription('The format to download').addChoices(supportedFormats.map(f => ({ name: f, value: f })))
+      )
   )
-  .addStringOption(option => 
-    option.setName('format').setDescription('The format to download').addChoices(supportedFormats.map(f => ({ name: f, value: f })))
-  )
-  .addBooleanOption(option =>
-    option.setName('update').setDescription('only update yt-dlp binary').setRequired(false)
-  )
-  .setDescription('Download video from ANY site supported by yt-dlp');
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName('update')
+      .setDescription('Update yt-dlp binary')
+  );
 
 const execute = async (interaction: Interaction<CacheType>) => {
   if (!interaction.isChatInputCommand()) return;
@@ -37,13 +44,10 @@ const execute = async (interaction: Interaction<CacheType>) => {
 
   try {
     await interaction.deferReply();
-    // --- Options ---
-    const isUpdate = interaction.options.getBoolean('update') || false;
-    const url = interaction.options.getString('url', true);
-    const format = interaction.options.getString('format') || 'm4a';
+    const subcommand = interaction.options.getSubcommand();
 
     // --- Update yt-dlp ---
-    if (isUpdate) {
+    if (subcommand === 'update') {
       console.log(`[/ytdlp] updating yt-dlp binary`);
       const proc = Bun.spawn({ cmd: updateYtdlpCmdBuilder(), stdout: 'inherit', stderr: 'inherit' });
       const res = await proc.exited;
@@ -51,10 +55,14 @@ const execute = async (interaction: Interaction<CacheType>) => {
       return;
     }
 
-    if (format && !(supportedFormats as string[]).includes(format)) {
-      await interaction.editReply({ content: `Unsupported format: ${format}` });
-      return;
-    }
+    if (subcommand === 'download') {
+      const url = interaction.options.getString('url', true);
+      const format = interaction.options.getString('format') || 'm4a';
+
+      if (format && !(supportedFormats as string[]).includes(format)) {
+        await interaction.editReply({ content: `Unsupported format: ${format}` });
+        return;
+      }
 
     // --- 1. Fetch Title ---
     console.log(`[/ytdlp] fetching title for: ${url}`);
@@ -148,6 +156,7 @@ const execute = async (interaction: Interaction<CacheType>) => {
     } else {
       await interaction.editReply({ content: `❌ Failed to upload to pCloud.` });
     }
+    } // end of download subcommand logic
 
   } catch (error) {
     console.error('Error in ytdlp command:', error);

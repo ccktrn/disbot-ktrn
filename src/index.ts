@@ -1,9 +1,15 @@
-
 import { Events, OAuth2Scopes } from "discord.js";
 import * as dotenv from "dotenv";
 import createCmdMap from "./lib/create-cmd-map";
 import DisbotClient from "./wrapper/disbot-client";
+import { generateLLMResponse } from "./lib/llm/llm-client";
+import { LLMConfigRepository } from "./repositories/llm-config-repository";
+import { ReminderRepository } from "./repositories/reminder-repository";
+
 dotenv.config();
+
+const llmConfigRepo = new LLMConfigRepository();
+const reminderRepo = new ReminderRepository();
 
 // Create a new Discord client instance
 const client = DisbotClient.createClient();
@@ -35,6 +41,25 @@ client.once(Events.ClientReady, readyClient => {
   } else {
     DisbotClient.deployCmds(cmdMap)
   }
+
+  // --- Start Reminder Checker ---
+  setInterval(async () => {
+    const now = Date.now();
+    const pending = reminderRepo.getPendingReminders(now);
+    for (const r of pending) {
+      try {
+        const channel = await client.channels.fetch(r.channel_id);
+        if (channel && 'send' in channel && typeof channel.send === 'function') {
+          await channel.send(`🔔 <@${r.user_id}> リマインダーの時間です！\n> ${r.content}`);
+        }
+      } catch (err) {
+        console.error(`Failed to send reminder ${r.id}:`, err);
+      } finally {
+        // 成功しても失敗しても時間が過ぎたものは削除する
+        reminderRepo.removeReminderById(r.id);
+      }
+    }
+  }, 10000); // 10秒ごとにチェック
 });
 
 
@@ -47,11 +72,26 @@ client.on(Events.GuildCreate, guild => {
 
 
 // Listen for messages
-client.on(Events.MessageCreate, message => {
+client.on(Events.MessageCreate, async message => {
   if (message.author.bot) return;
 
   if (message.mentions.has(message.client.user)) { // If the bot is mentioned in a message
     message.reply(`Hello ${message.author.username}!`);
+    return;
+  }
+
+  const keywords = llmConfigRepo.getKeywords();
+  const matchedKeyword = keywords.find(kw => message.content.startsWith(kw));
+  
+  if (matchedKeyword) {
+    try {
+      await message.channel.sendTyping();
+      const response = await generateLLMResponse(message.content);
+      const safeResponse = response.length > 2000 ? response.substring(0, 1997) + "..." : response;
+      await message.reply(safeResponse);
+    } catch (error) {
+      console.error("Error in keyword response:", error);
+    }
   }
 });
 

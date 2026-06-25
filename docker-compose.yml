@@ -11,3 +11,5 @@ services:
     # ダウンロード中の一時ファイルを確認したい場合のみ、以下のコメント(#)を外してください
     # volumes:
     #   - ./outputs:/app/outputs
+    volumes:
+      - ./data:/app/data
