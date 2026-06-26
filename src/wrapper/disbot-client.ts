@@ -81,43 +81,7 @@ class DisbotClient {
   }
   public static getChannelId(): string | undefined {
     return this.channelId;
-  }  
-
-  public static sendMsg(message: string, category: DiscordMessageCategory = 'info'): void {
-    // send message to Discord
-    if (!this.channelId) {
-      console.error("Channel ID is not set. Cannot send message to Discord.");
-      return;
-    }
-    const channel = this.client.channels.cache.get(this.channelId);
-    if (!channel) {
-      console.error("Channel not found. Cannot send message to Discord.");
-      return;
-    }
-    if (!channel.isSendable()) {
-      console.error("Channel is not sendable. Cannot send message to Discord.");
-      return;
-    }
-
-
-    // decorate message to Discords
-    const { editGracePeriod, formatter } = this.categorySettings[category];
-
-    if (editGracePeriod > 0 && channel.lastMessage && channel.lastMessage.editable) {
-      const last = channel.lastMessage.editedAt || channel.lastMessage.createdAt;
-      if (Date.now() - last.getTime() < editGracePeriod * 1000) {
-        // If the last message was sent within the editGracePeriod time, edit it
-        channel.lastMessage.edit(formatter(message))
-          .catch(err => console.error("Failed to edit message:", err));
-        return;
-      }
-    }
-    // If the message cannot be edited, send it as a normal message
-    channel.send(formatter(message));
-  }
-
-
-
+  }   
   
   // コマンドを登録・更新する関数 (特定のギルドのみ)
   public static async deployCmdsForGuild (cmdMap: Map<string, SlashCmd>, guild_id: string) {

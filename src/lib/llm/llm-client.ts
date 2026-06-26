@@ -12,22 +12,20 @@ const openai = new OpenAI({
 
 const configRepo = new LLMConfigRepository();
 
-export const generateLLMResponse = async (prompt: string): Promise<string> => {
+export const generateLLMResponse = async (chatMessages: { role: "system" | "user" | "assistant", content: string }[]): Promise<string> => {
   if (!apiKey) {
     return "エラー: LLM_API_KEY が環境変数に設定されていません。";
   }
 
   // DBからモデル設定を取得。なければ環境変数、それでもなければデフォルトを使用
   const dbModel = configRepo.getConfig("model_name");
-  const modelName = dbModel || process.env.LLM_API_MODEL || "google/gemini-2.0-flash-lite-preview-02-05:free";
+  const modelName = dbModel || process.env.LLM_API_MODEL || "openrouter/free";
 
   try {
+
     const response = await openai.chat.completions.create({
       model: modelName,
-      messages: [
-        { role: "system", content: "あなたはDiscordの便利なAIアシスタントです。フレンドリーに、かつ簡潔に日本語で返答してください。" },
-        { role: "user", content: prompt }
-      ],
+      messages: chatMessages,
     });
 
     return response.choices[0]?.message?.content || "返答を生成できませんでした。";

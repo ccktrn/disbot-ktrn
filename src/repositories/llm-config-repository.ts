@@ -1,4 +1,4 @@
-import { SQLiteService } from "../services/sqlite";
+import { SQLiteService } from "../lib/sqlite";
 
 export class LLMConfigRepository {
     private db: SQLiteService;

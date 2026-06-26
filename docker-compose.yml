@@ -8,8 +8,7 @@ services:
       - .env
     restart: unless-stopped
     
-    # ダウンロード中の一時ファイルを確認したい場合のみ、以下のコメント(#)を外してください
-    # volumes:
-    #   - ./outputs:/app/outputs
     volumes:
       - ./data:/app/data
+      # ダウンロード中の一時ファイルを確認したい場合のみ、以下のコメントを外してください
+      # - ./outputs:/app/outputs

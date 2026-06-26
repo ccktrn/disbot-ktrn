@@ -1,9 +1,14 @@
 import { SlashCommandBuilder, Interaction, CacheType, MessageFlags } from 'discord.js'
 import { SlashCmd } from '../type';
-import { generateLLMResponse } from '../lib/llm/llm-client';
-import { LLMConfigRepository } from '../repositories/llm-config-repository';
+import { LLMService } from '../services/llm-service';
 
-const llmConfigRepo = new LLMConfigRepository();
+import { handleChat } from '../handlers/llm/chat';
+import { handleAddKeyword } from '../handlers/llm/add-keyword';
+import { handleRemoveKeyword } from '../handlers/llm/remove-keyword';
+import { handleListKeyword } from '../handlers/llm/list-keyword';
+import { handleModel } from '../handlers/llm/model';
+
+const llmService = new LLMService();
 
 const builder = new SlashCommandBuilder()
   .setName('llm')
@@ -54,6 +59,8 @@ const builder = new SlashCommandBuilder()
       )
   );
 
+
+
 const execute = async (interaction: Interaction<CacheType>) => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -61,43 +68,19 @@ const execute = async (interaction: Interaction<CacheType>) => {
 
   try {
     if (subcommand === 'chat') {
-      const message = interaction.options.getString('message', true);
-      await interaction.deferReply();
-      const response = await generateLLMResponse(message);
-      const safeResponse = response.length > 2000 ? response.substring(0, 1997) + "..." : response;
-      await interaction.editReply({ content: safeResponse });
+      await handleChat(interaction, llmService);
     } 
     else if (subcommand === 'add-keyword') {
-      const keyword = interaction.options.getString('keyword', true);
-      llmConfigRepo.addKeyword(keyword);
-      await interaction.reply({ content: `キーワード \`${keyword}\` を追加しました。` });
+      await handleAddKeyword(interaction, llmService);
     } 
     else if (subcommand === 'remove-keyword') {
-      const keyword = interaction.options.getString('keyword', true);
-      const removed = llmConfigRepo.removeKeyword(keyword);
-      if (removed) {
-        await interaction.reply({ content: `キーワード \`${keyword}\` を削除しました。` });
-      } else {
-        await interaction.reply({ content: `キーワード \`${keyword}\` は登録されていません。`, flags: [ MessageFlags.Ephemeral ] });
-      }
+      await handleRemoveKeyword(interaction, llmService);
     } 
     else if (subcommand === 'list-keyword') {
-      const keywords = llmConfigRepo.getKeywords();
-      if (keywords.length === 0) {
-        await interaction.reply({ content: '現在登録されているキーワードはありません。', flags: [ MessageFlags.Ephemeral ] });
-      } else {
-        await interaction.reply({ content: `**現在登録されているキーワード:**\n${keywords.map(kw => `- \`${kw}\``).join('\n')}` });
-      }
+      await handleListKeyword(interaction, llmService);
     }
     else if (subcommand === 'model') {
-      const name = interaction.options.getString('name');
-      if (name) {
-        llmConfigRepo.setConfig('model_name', name);
-        await interaction.reply({ content: `使用するモデルを \`${name}\` に設定しました。` });
-      } else {
-        const currentModel = llmConfigRepo.getConfig('model_name') || process.env.LLM_API_MODEL || "デフォルト(google/gemini-2.0-flash-lite-preview-02-05:free)";
-        await interaction.reply({ content: `現在のモデル設定: \`${currentModel}\``, flags: [ MessageFlags.Ephemeral ] });
-      }
+      await handleModel(interaction, llmService);
     }
   } catch (error) {
     console.error("Error in /llm command:", error);
