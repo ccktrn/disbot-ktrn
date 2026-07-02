@@ -37,7 +37,9 @@ export const handleMessage = async (message: Message, client: Client, llmService
                         const fetchedMsg: Message = await message.channel.messages.fetch(currentMessageId);
                         chatMessages.unshift({
                             role: fetchedMsg.author.id === client.user.id ? 'assistant' : 'user',
-                            content: fetchedMsg.content
+                            content: fetchedMsg.author.id === client.user.id 
+                                ? fetchedMsg.content 
+                                : `[User: ${fetchedMsg.author.username} (ID: ${fetchedMsg.author.id})]\n${fetchedMsg.content}`
                         });
                         currentMessageId = fetchedMsg.reference?.messageId;
                     } catch (e) {
@@ -46,7 +48,10 @@ export const handleMessage = async (message: Message, client: Client, llmService
                 }
             } else {
                 // 返信でなければ今のメッセージだけ
-                chatMessages.push({ role: 'user', content: message.content });
+                chatMessages.push({ 
+                    role: 'user', 
+                    content: `[User: ${message.author.username} (ID: ${message.author.id})]\n${message.content}` 
+                });
             }
 
             const response = await llmService.generateChatResponseWithHistory(chatMessages);

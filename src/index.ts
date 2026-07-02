@@ -62,9 +62,7 @@ client.on(Events.MessageCreate, async message => {
 
   // Let the message handler process the message if it's a mention, reply, or keyword match
   const handledByLLM = await handleMessage(message, client, llmService);
-  if (handledByLLM) {
-    return;
-  }
+  if (handledByLLM) return;
 });
 
 // Listen for interactions e.g. slash commands
@@ -99,9 +97,14 @@ import { mcpManager } from "./lib/mcp/mcp-manager";
     
     // 1. 自作の時刻取得用MCPサーバー
     await mcpManager.connectServer("time", "bun", ["src/lib/mcp/time-server.ts"]);
-    
     // 2. 自作のSearXNG検索用MCPサーバー
     await mcpManager.connectServer("searxng", "bun", ["src/lib/mcp/searxng-server.ts"]);
+    // 3. 記憶（KVストア）用MCPサーバー
+    await mcpManager.connectServer("memory", "bun", ["src/lib/mcp/memory-server.ts"]);
+    // 4. Webページリーダー（スクレイピング）用MCPサーバー
+    await mcpManager.connectServer("webreader", "bun", ["src/lib/mcp/fetch-server.ts"]);
+    // 5. 天気予報用MCPサーバー
+    await mcpManager.connectServer("weather", "bun", ["src/lib/mcp/weather-server.ts"]);
     
     console.log("MCP servers started successfully.");
   } catch (error) {

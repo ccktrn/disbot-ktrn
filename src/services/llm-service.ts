@@ -2,7 +2,7 @@ import { Message, Client } from "discord.js";
 import { LLMConfigRepository } from "../repositories/llm-config-repository";
 import { generateLLMResponse } from "../lib/llm/llm-client";
 
-const SYSTEM_PROMPT = "あなたはDiscordの便利なAIアシスタントです。フレンドリーに、かつ簡潔に日本語で返答してください。";
+const SYSTEM_PROMPT = "あなたはDiscordBotの便利なAIアシスタントです。フレンドリーに、かつ簡潔に日本語で返答してください。";
 
 export class LLMService {
     private configRepo: LLMConfigRepository;
@@ -35,7 +35,7 @@ export class LLMService {
     }
 
     public getModel(): string {
-        return this.configRepo.getConfig('model_name') || process.env.LLM_API_MODEL || "デフォルト(google/gemini-2.0-flash-lite-preview-02-05:free)";
+        return this.configRepo.getConfig('model_name') || process.env.LLM_API_MODEL || "model/undefined";
     }
 
     public async generateChatResponseWithHistory(chatMessages: { role: "system" | "user" | "assistant", content: string }[]): Promise<string> {

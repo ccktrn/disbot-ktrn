@@ -1,6 +1,6 @@
 services:
-  discord-bot:
-    container_name: discord-bot
+  ktrn-bot:
+    container_name: ktrn-bot
     build:
       context: .
       dockerfile: Dockerfile
@@ -17,8 +17,6 @@ services:
     image: searxng/searxng:latest
     container_name: searxng
     restart: unless-stopped
-    ports:
-      - "8080:8080"
     environment:
       - SEARXNG_BASE_URL=http://localhost:8080/
       - SEARXNG_URL=http://searxng:8080

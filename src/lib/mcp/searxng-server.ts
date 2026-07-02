@@ -48,7 +48,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
     try {
       // 検索エンジンを絞りたい場合は、ここで google,duckduckgo,bing,wikipedia のように指定します
-      const engines = ["google", "duckduckgo", "bing"];
+      const engines = ["wikipedia", "google", "bing"];
       
       // ローカルのSearXNGコンテナにアクセス（bot対策エラー回避のためヘッダーを付与）
       const response = await fetch(`http://searxng:8080/search?q=${encodeURIComponent(query)}&format=json&engines=${engines.join(",")}`, {

@@ -92,11 +92,14 @@ export const generateLLMResponse = async (chatMessages: any[]): Promise<string> 
         continue;
       }
 
-      // ツール呼び出しがなければ終了
+      // ツール呼び出しがなければ終了（これが最終回答）
+      const finalContent = message.content || "";
+      // 最終回答が空っぽの場合のみ、検索中の途中経過（accumulatedContent）をフォールバックとして使う
+      accumulatedContent = finalContent.trim() ? finalContent : accumulatedContent;
       break;
     }
 
-    return accumulatedContent;
+    return accumulatedContent || "（返答を生成できませんでした）";
   } catch (error) {
     console.error("LLM API error:", error);
     return "申し訳ありません、LLM APIとの通信中にエラーが発生しました。";

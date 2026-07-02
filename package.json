@@ -13,6 +13,7 @@
     "@discordjs/rest": "^2.5.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "axios": "^1.13.2",
+    "cheerio": "^1.2.0",
     "discord-api-types": "^0.38.16",
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.0",

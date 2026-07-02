@@ -1,6 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { ListToolsResultSchema, CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
+import { randomBytes } from "crypto";
 
 export class McpManager {
   private clients: Map<string, Client> = new Map();
@@ -56,22 +57,28 @@ export class McpManager {
   }
 
   async callTool(serverName: string, toolName: string, args: any) {
+    const callId = randomBytes(8).toString("hex");
+    console.log(`[MCP-${callId}] Calling tool ${toolName} on server ${serverName} with args:`, args);
+
     const client = this.clients.get(serverName);
     if (!client) throw new Error(`MCP Server ${serverName} not found`);
-
-    console.log(`[MCP] Calling tool ${toolName} on server ${serverName} with args:`, args);
-    const result: any = await client.request(
-      {
-        method: "tools/call",
-        params: {
-          name: toolName,
-          arguments: args,
+    try {
+      const result: any = await client.request(
+        {
+          method: "tools/call",
+          params: {
+            name: toolName,
+            arguments: args,
+          },
         },
-      },
-      CallToolResultSchema
-    );
-
-    return result;
+        CallToolResultSchema
+      );
+      console.log(`[MCP-${callId}] Tool called successfully`);
+      return result;
+    } catch (err) {
+      console.error(`[MCP-${callId}] Error calling tool:`, err);
+      throw err;
+    }
   }
 
   async closeAll() {

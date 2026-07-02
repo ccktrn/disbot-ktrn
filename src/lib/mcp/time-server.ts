@@ -23,7 +23,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: "get_current_time",
-        description: "Get the current time and date in the server's local timezone.",
+        description: "Get the current date and time in the server's local timezone.",
         inputSchema: {
           type: "object",
           properties: {},
