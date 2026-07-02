@@ -50,7 +50,15 @@ export const handleMessage = async (message: Message, client: Client, llmService
             }
 
             const response = await llmService.generateChatResponseWithHistory(chatMessages);
-            const safeResponse = response.length > 2000 ? response.substring(0, 1997) + "..." : response;
+            
+            // 空のレスポンスが返ってきた場合の安全対策
+            let safeResponse = response && response.trim().length > 0 ? response : "（申し訳ありません、回答を生成できませんでした）";
+            
+            // Discordの文字数制限(2000文字)対策
+            if (safeResponse.length > 2000) {
+                safeResponse = safeResponse.substring(0, 1997) + "...";
+            }
+            
             await message.reply(safeResponse);
             return true;
         } catch (error) {

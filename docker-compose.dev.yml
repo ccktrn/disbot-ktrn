@@ -1,0 +1,6 @@
+# ovverride for development environment
+services:
+  discord-bot:
+    command: bun run dev
+    volumes:
+      - ./src:/app/src

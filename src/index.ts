@@ -90,4 +90,23 @@ client.on(Events.InteractionCreate, async interaction => {
 });
 
 
-DisbotClient.login()
+import { mcpManager } from "./lib/mcp/mcp-manager";
+
+// 起動時にMCPサーバーに接続してからDiscordにログインする
+(async () => {
+  try {
+    console.log("Starting MCP servers...");
+    
+    // 1. 自作の時刻取得用MCPサーバー
+    await mcpManager.connectServer("time", "bun", ["src/lib/mcp/time-server.ts"]);
+    
+    // 2. 自作のSearXNG検索用MCPサーバー
+    await mcpManager.connectServer("searxng", "bun", ["src/lib/mcp/searxng-server.ts"]);
+    
+    console.log("MCP servers started successfully.");
+  } catch (error) {
+    console.error("Failed to start MCP servers:", error);
+  }
+
+  DisbotClient.login();
+})();

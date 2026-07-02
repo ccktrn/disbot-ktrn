@@ -6,9 +6,21 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env
+    environment:
+      - TZ=Asia/Tokyo
     restart: unless-stopped
     
     volumes:
       - ./data:/app/data
-      # ダウンロード中の一時ファイルを確認したい場合のみ、以下のコメントを外してください
-      # - ./outputs:/app/outputs
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8080/
+      - SEARXNG_URL=http://searxng:8080
+    volumes:
+      - ./searxng-config.yml:/etc/searxng/settings.yml:ro

@@ -15,9 +15,9 @@
 
 `.env`ファイルを適切に設定した後、Docker Composeを使用して起動します。
 
-**ビルドとテスト起動:**
+**テスト起動:**
 ```sh
-docker compose up --build
+bun run dev
 ```
 
 **バックグラウンド(デーモン)起動:**
